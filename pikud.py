@@ -62,7 +62,7 @@ def notify_user(region: str) -> None:
     """
     Shows a Windows alert to the user that contains the region name.
     """
-    NOTIFIER.show_toast("Red Alert!", "A")
+    NOTIFIER.show_toast("Red Alert!", region)
 
 
 def handle_region(region: str) -> None:
