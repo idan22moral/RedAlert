@@ -29,6 +29,6 @@ You can run the script in the same way you run any Python script.
 Just make sure that you use a Python 3.6 or any other Python 3 version.
 
 ## Notes
-This is a simple script that should represent the basic idea.
-Feel free to improve the implementation, add features, add GUI, etc.
+This is a simple script that should represent the basic idea.<br>
+Feel free to improve the implementation, add features, add GUI, etc.<br>
 Just fork this repository, I would love to see your work!
