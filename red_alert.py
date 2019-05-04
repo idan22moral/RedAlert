@@ -5,6 +5,7 @@ from win10toast import ToastNotifier
 import json
 import threading
 import os
+import logging
 
 REGIONS_FILE_PATH = "regions.cfg"
 PIKUD_URL = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
@@ -14,6 +15,17 @@ CURRENT_ALERTS = set()
 ALERT_TIME = 30
 NOTIFIER = ToastNotifier()
 
+# Set a logger & log formatter
+logger = logging.getLogger(__name__)
+logger.level = logging.DEBUG
+file_log_formatter = logging.Formatter(
+    '%(asctime)s  %(levelname)s: %(message)s')
+console_log_formatter = logging.Formatter('%(asctime)s %(message)s')
+
+# Setup logging to a log file
+file_log_handler = logging.FileHandler(filename='log.txt', mode='a')
+file_log_handler.setFormatter(file_log_formatter)
+logger.addHandler(file_log_handler)
 
 def load_regions() -> set():
     """
@@ -34,6 +46,10 @@ def load_regions() -> set():
         if len(USER_REGIONS) > 0:
             print("You'll receive a notification when Red Alert hits these regions:")
             print(', '.join(USER_REGIONS))
+        else:
+            USER_REGIONS = None
+            print('No regions specified in the configuration file.')
+            print('Visit the GitHub page to see how to do that: https://github.com/idan22moral/RedAlert')
     except FileNotFoundError:
         # Set USER_REGIONS as None to indicate the fact that the user has no prefrences
         # In this case the user shoud recieve an alert for every possible region
@@ -95,10 +111,12 @@ def alert_regions(regions: list) -> None:
     # and Set a timer for every region
     for region in regions_to_alert:
         CURRENT_ALERTS.add(region)
-        timer = threading.Timer(ALERT_TIME, end_alert)
+        timer = threading.Timer(ALERT_TIME, end_alert, args=(region))
         timer.start()
     # Notify the user about all the new regions
-    notify_user(', '.join(regions_to_alert))
+    if len(regions_to_alert) > 0:
+        logger.info("USER ALERTS: " + ', '.join(regions_to_alert))
+        notify_user(', '.join(regions_to_alert))
 
 
 def print_silent_alerts(regions: list) -> None:
@@ -115,6 +133,7 @@ def print_silent_alerts(regions: list) -> None:
         current_time_formatted = datetime.datetime.strftime(
             current_time, "[%d/%m/%y %H:%M:%S]")
         print(f"{current_time_formatted}: {region_numbers}")
+        logger.info("ALERTED REGIONS " + region_numbers)
 
 
 def main():
@@ -123,7 +142,11 @@ def main():
     USER_REGIONS = load_regions()
 
     while True:
-        current_alerts_raw = get_current_alerts()
+        current_alerts_raw = ""
+        try:
+            current_alerts_raw = get_current_alerts()
+        except Exception as e:
+            print(f'Error: {str(e)}')
 
         # Check if there are any alerts right now
         if current_alerts_raw is not '':
@@ -131,10 +154,10 @@ def main():
             current_alerts_data = json.loads(current_alerts_raw)
 
             try:
-                # Handle every region in the current alerts
-                alert_regions(current_alerts_data["data"])
                 # Print all the current regions to the console as "silent" alerts
                 print_silent_alerts(current_alerts_data["data"])
+                # Handle every region in the current alerts
+                alert_regions(current_alerts_data["data"])
             except Exception as e:
                 print(f'Error: {str(e)}')
 
