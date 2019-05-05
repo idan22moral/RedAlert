@@ -27,6 +27,7 @@ file_log_handler = logging.FileHandler(filename='log.txt', mode='a')
 file_log_handler.setFormatter(file_log_formatter)
 logger.addHandler(file_log_handler)
 
+
 def load_regions() -> set():
     """
     Loads the regions that interest the user from the `regions.cfg` file.
@@ -49,7 +50,8 @@ def load_regions() -> set():
         else:
             USER_REGIONS = None
             print('No regions specified in the configuration file.')
-            print('Visit the GitHub page to see how to do that: https://github.com/idan22moral/RedAlert')
+            print(
+                'Visit the GitHub page to see how to do that: https://github.com/idan22moral/RedAlert')
     except FileNotFoundError:
         # Set USER_REGIONS as None to indicate the fact that the user has no prefrences
         # In this case the user shoud recieve an alert for every possible region
