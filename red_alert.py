@@ -152,10 +152,10 @@ def main():
 
         # Check if there are any alerts right now
         if current_alerts_raw is not '':
-            # Convert the raw json data from string to dictionary
-            current_alerts_data = json.loads(current_alerts_raw)
-
             try:
+                # Convert the raw json data from string to dictionary
+                current_alerts_data = json.loads(current_alerts_raw)
+
                 # Print all the current regions to the console as "silent" alerts
                 print_silent_alerts(current_alerts_data["data"])
                 # Handle every region in the current alerts
