@@ -28,7 +28,7 @@ file_log_handler.setFormatter(file_log_formatter)
 logger.addHandler(file_log_handler)
 
 
-def load_regions() -> set():
+def load_regions() -> set:
     """
     Loads the regions that interest the user from the `regions.cfg` file.
     """
@@ -151,7 +151,7 @@ def main():
             print(f'Error: {str(e)}')
 
         # Check if there are any alerts right now
-        if current_alerts_raw is not '':
+        if current_alerts_raw != '':
             try:
                 # Convert the raw json data from string to dictionary
                 current_alerts_data = json.loads(current_alerts_raw)
