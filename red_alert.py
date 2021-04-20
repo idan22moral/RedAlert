@@ -9,7 +9,7 @@ import logging
 
 REGIONS_FILE_PATH = "regions.cfg"
 PIKUD_URL = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
-PIKUD_REFERER = "https://www.oref.org.il/894-he/pakar.aspx"
+PIKUD_REFERER = "https://www.oref.org.il/"
 USER_REGIONS = set()
 CURRENT_ALERTS = set()
 ALERT_TIME = 30
