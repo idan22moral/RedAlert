@@ -1,7 +1,10 @@
 import requests
 import time
 import datetime
-from win10toast import ToastNotifier
+try:
+    from win10toast import ToastNotifier
+except:
+    from unittest.mock import Mock as ToastNotifier
 import json
 import threading
 import os
