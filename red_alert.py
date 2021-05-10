@@ -26,7 +26,7 @@ file_log_formatter = logging.Formatter(
 console_log_formatter = logging.Formatter('%(asctime)s %(message)s')
 
 # Setup logging to a log file
-file_log_handler = logging.FileHandler(filename='log.txt', mode='a')
+file_log_handler = logging.FileHandler(filename='log.txt', mode='a', encoding='utf-8')
 file_log_handler.setFormatter(file_log_formatter)
 logger.addHandler(file_log_handler)
 
