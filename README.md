@@ -19,12 +19,11 @@ For example:
 This way you'll receive toast notifications for those regions only.  
 To find your region, refer to [Pikud-Ha'Oref](https://www.oref.org.il/).
 
-## Installation
-1. Run `pip install -r requirements.txt` to install all the required libraries.
-
-## How To Run It
-You can run the script in the same way you run any Python script.  
-Just make sure that you use a Python 3.6 or any other Python 3 version.
+## Installation & Usage
+```sh
+pip install -r requirements.txt
+python red_alert.py
+```
 
 ## Notes
 * The regions in `regions.cfg` are searched in the text, not compared to it.  
