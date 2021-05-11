@@ -114,7 +114,7 @@ def alert_regions(regions: list) -> None:
     # Remove the irrelevant regions from the list, if the user has any prefrences
     if USER_REGIONS != None:
         regions_to_alert = [
-            region for region in regions if region in USER_REGIONS]
+            region for region in regions if any([x in region for x in USER_REGIONS])]
 
     # Add the regions to the list of already alerted regions
     # and Set a timer for every region
