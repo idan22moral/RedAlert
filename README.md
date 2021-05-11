@@ -1,33 +1,34 @@
 # RedAlert
-Simple python program that notifies Red Alerts
+Get toast notification for Red Alerts (Windows only ATM).
 
 ## Simple Explanation
-This script shows a Windows notification to the user that contains the numbers of regions that just recieved Red Alert.
-
-The regions that will show the user a notification are writen in a configuration file called `regions.cfg`, and it should be located under the same directory as the Python script.
-
-In the console you will see all the alerted regions, even if you configuted it to not notify you (you can think of it as a 'silent' notification).
+This tool pops a Windows toast notification for every Red Alert.  
+You can filter the regions for you notification in the `regions.cfg` file.  
+All Red Alert notifications (even filtered ones) are logged to the console and log file.  
 
 ## The `regions.cfg` File
-In order to get alerts of specific regions only, you need to configure the program.
-To do that, you simply need to add a file called `regions.cfg` in the same directory as the Python script.
-The proper format of the configuration file is a list numbers that represent the regions, like that:
+Add this file to filter the toast notifications to show specific regions only.  
+The file should be place in this directory (you can rename the example file).  
+The file should contain a list of regions (splitted by new-lines).  
+For example:
 ```
 אשקלון
 אשדוד
 ראשון לציון
 ```
-By using these numbers, you will recieve a notification when a Red Alert is heard in one of those regions.
-To know the region numbers by a city, use the Pikud-Ha'Oref feature [here](https://www.oref.org.il/11093-he/Pakar.aspx).
+This way you'll receive toast notifications for those regions only.  
+To find your region, refer to [Pikud-Ha'Oref](https://www.oref.org.il/).
 
 ## Installation
 1. Run `pip install -r requirements.txt` to install all the required libraries.
 
 ## How To Run It
-You can run the script in the same way you run any Python script.
+You can run the script in the same way you run any Python script.  
 Just make sure that you use a Python 3.6 or any other Python 3 version.
 
 ## Notes
-This is a simple script that should represent the basic idea.<br>
-Feel free to improve the implementation, add features, add GUI, etc.<br>
-Just fork this repository, I would love to see your work!
+* The regions in `regions.cfg` are searched in the text, not compared to it.  
+So, "`אשקלון`" will notify for both "`אשקלון`" and "`אשקלון - איזור תעשייה דרומי`").  
+* This script represents the basic idea.  
+Feel free to improve the implementation, add features, GUI, etc.  
+Just fork this repository, I'd love to see your work!
