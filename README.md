@@ -27,7 +27,7 @@ python red_alert.py
 
 ## Notes
 * The regions in `regions.cfg` are searched in the text, not compared to it.  
-So, "`ראשון לציון`" will notify for both "`ראשון לציון - מזרח`" and "`ראשון לציון - מערב`").  
+So, `ראשון לציון` will notify for both `ראשון לציון - מזרח` and `ראשון לציון - מערב`).  
 * This script represents the basic idea.  
 Feel free to improve the implementation, add features, GUI, etc.  
 Just fork this repository, I'd love to see your work!
