@@ -73,7 +73,6 @@ def load_regions() -> set:
 def get_current_alerts() -> str:
     """
     Returns a json (dict) that contains the data from the alert source.
-    Note: empty dict is returned on failure.
     """
     headers = {
         'Referer':          PIKUD_REFERER,
