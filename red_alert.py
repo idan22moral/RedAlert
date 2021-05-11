@@ -84,7 +84,7 @@ def get_current_alerts() -> str:
     return json_data
 
 def notify_user(regions: str) -> None:
-    NOTIFIER.show_toast(title="Red Alert!", msg=regions)
+    NOTIFIER.show_toast(title="Red Alert!", msg=regions, threaded=True)
 
 def end_alert(region: str) -> None:
     try:
@@ -92,56 +92,74 @@ def end_alert(region: str) -> None:
     except KeyError as e:
         pass
 
-def alert_regions(regions: list) -> None:
+def filter_new_regions(regions: list) -> list:
+    """
+    Returns only the new regions from the given regions list.
+    """
+    global CURRENT_ALERTS
+    # Remove already alerted regions from the list
+    new_regions = [region for region in regions if region not in CURRENT_ALERTS]
+    return new_regions
+
+def filter_user_regions(regions: list):
+    """
+    Returns only the regions that match the user's regions.
+    """
+    global USER_REGIONS
+    if USER_REGIONS == None:
+        return regions
+    else:
+        # Remove the irrelevant regions from the list, if the user has any prefrences
+        return [region for region in regions if any([x in region for x in USER_REGIONS])]
+
+def alert_regions(regions: list) -> list:
     """
     Sets a timer of ALERT_TIME seconds, and notifies the user about all the `regions`.
     When ALERT_TIME seconds pass, new alerts about `regions` can be alerted.
     The timer is set to prevent alert-flooding about the same regions.
     """
-    # Remove already alerted regions from the list
-    regions_to_alert = [region for region in regions if region not in CURRENT_ALERTS]
-
-    # Remove the irrelevant regions from the list, if the user has any prefrences
-    if USER_REGIONS != None:
-        regions_to_alert = [region for region in regions_to_alert if any([x in region for x in USER_REGIONS])]
-
     # Add the regions to the list of already alerted regions
     # and set a timer for every region
-    for region in regions_to_alert:
+    for region in regions:
         CURRENT_ALERTS.add(region)
         timer = threading.Timer(ALERT_TIME, end_alert, args=(region,))
+        timer.daemon = True
         timer.start()
         logger.info(f"USER ALERTS: {region}")
 
     # Notify the user about all the new regions
-    if len(regions_to_alert) > 0:
-        notify_user(', '.join(regions_to_alert))
-
+    if len(regions) > 0:
+        notify_user(', '.join(regions))
 
 def log_silent_alerts(regions: list) -> None:
     for region in regions:
         logger.info(f"SILENT ALERT: {region}")
 
-
 def main():
     # Load the regions from the config file
     global USER_REGIONS, REFRESH_TIME
     USER_REGIONS = load_regions()
-
     while True:
         try:
-            # Convert the raw json data from string to dictionary
-            current_alerts_data = get_current_alerts()
+            current_alerts = get_current_alerts()
+            
+            new_regions = filter_new_regions(current_alerts["data"])
+            log_silent_alerts(new_regions)
 
-            # Log all the current regions to the console as "silent" alerts
-            log_silent_alerts(current_alerts_data["data"])
-            # Handle every region in the current alerts
-            alert_regions(current_alerts_data["data"])
+            user_regions = filter_user_regions(new_regions)
+            alert_regions(user_regions)
+        except json.JSONDecodeError:
+            pass
+        except KeyboardInterrupt:
+            exit()
         except Exception as e:
             logger.error(str(e))
-
+            
         # Make the request to Pikud-Ha'Oref's link every 1 second
-        time.sleep(REFRESH_TIME)
+        try:
+            time.sleep(REFRESH_TIME)
+        except KeyboardInterrupt:
+            exit()
 
 
 if __name__ == "__main__":
