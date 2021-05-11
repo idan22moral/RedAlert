@@ -12,7 +12,7 @@ The file should be place in this directory (you can rename the example file).
 The file should contain a list of regions (splitted by new-lines).  
 For example:
 ```
-אשקלון
+תל אביב
 אשדוד
 ראשון לציון
 ```
@@ -27,7 +27,7 @@ python red_alert.py
 
 ## Notes
 * The regions in `regions.cfg` are searched in the text, not compared to it.  
-So, "`אשקלון`" will notify for both "`אשקלון`" and "`אשקלון - איזור תעשייה דרומי`").  
+So, `ראשון לציון` will notify for both `ראשון לציון - מזרח` and `ראשון לציון - מערב`).  
 * This script represents the basic idea.  
 Feel free to improve the implementation, add features, GUI, etc.  
 Just fork this repository, I'd love to see your work!
