@@ -13,10 +13,9 @@ In order to get alerts of specific regions only, you need to configure the progr
 To do that, you simply need to add a file called `regions.cfg` in the same directory as the Python script.
 The proper format of the configuration file is a list numbers that represent the regions, like that:
 ```
-219
-246
-247
-218
+אשקלון
+אשדוד
+ראשון לציון
 ```
 By using these numbers, you will recieve a notification when a Red Alert is heard in one of those regions.
 To know the region numbers by a city, use the Pikud-Ha'Oref feature [here](https://www.oref.org.il/11093-he/Pakar.aspx).
