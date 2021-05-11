@@ -44,7 +44,7 @@ def load_regions() -> set:
 
     try:
         # Load the regions from the config file
-        with open(REGIONS_FILE_PATH, "r") as f:
+        with open(REGIONS_FILE_PATH, "r", encoding='utf-8') as f:
             USER_REGIONS = f.readlines()
 
         # Remove '\n' from the end of every line, and remove empty lines
