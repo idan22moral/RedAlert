@@ -12,7 +12,7 @@ The file should be place in this directory (you can rename the example file).
 The file should contain a list of regions (splitted by new-lines).  
 For example:
 ```
-אשקלון
+תל אביב
 אשדוד
 ראשון לציון
 ```
