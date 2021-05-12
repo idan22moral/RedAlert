@@ -36,31 +36,36 @@ logger.addHandler(print_handler)
 #set OS var
 if sys.platform.startswith('win'):
     OS =  IS_WINDOWS
+elif sys.platform.startswith('linux'):
+    OS = IS_LINUX
 else:
-    OS = IS_LINUX  # todo: batter check for linux and not just not windows
+    logger.error('Only Linux/Windows machines are supported')
+    exit()
 
-if os == IS_WINDOWS:
-    try:
+
+try:  #set NOTIFIER
+    if os == IS_WINDOWS:
         from win10toast import ToastNotifier
-    except:
-        logger.debug("Could not import win10toast (no toasts available)")
-        from unittest.mock import Mock as ToastNotifier
-    NOTIFIER = ToastNotifier()
+        NOTIFIER = ToastNotifier()
 
-elif OS == IS_LINUX:        
-    try:
+    elif OS == IS_LINUX:
         import notify2
-    except :
-        logger.debug("Could not import notify2")
 
-    # set NOTIFIER
-    notify2.init("red alerts")
-    NOTIFIER = notify2.Notification("red alert testrrr", icon = "<insert path to pic here>")
-    NOTIFIER.set_urgency(notify2.URGENCY_CRITICAL)
-    NOTIFIER.set_timeout(2000)
+        notify2.init("red alerts")
+        NOTIFIER = notify2.Notification("", icon = "<insert path to pic here>")
+        NOTIFIER.set_urgency(notify2.URGENCY_CRITICAL)
+        NOTIFIER.set_timeout(2000)
 
-else:
-    exit() # todo: agree on batter behavior
+    else:
+        logger.error('Only Linux/Windows machines are supported')
+        exit()
+
+except Exception as e:
+    logger.debug("Toast/notify2 notifications are not available")
+    from unittest.mock import Mock
+    NOTIFIER = Mock()
+    logger.error(str(e))
+    logger.warning("Toast/notify2 notifications are not available")
 
 
 def load_regions() -> set:
@@ -116,9 +121,7 @@ def notify_windows(msg: str) -> None:
     NOTIFIER.show_toast(title="Red Alert!", msg=msg, threaded=True)
 
 def notify_user(regions: str) -> None:
-    global OS
-    global IS_WINDOWS
-    global IS_LINUX
+    global OS, IS_WINDOWS, IS_LINUX
     if OS == IS_WINDOWS:
         notify_windows(regions)
     elif OS == IS_LINUX:
@@ -181,7 +184,6 @@ def main():
     while True:
         try:
             current_alerts = get_current_alerts()
-            print(current_alerts)
             new_regions = filter_new_regions(current_alerts["data"])
             log_silent_alerts(new_regions)
 
@@ -192,7 +194,7 @@ def main():
         except KeyboardInterrupt:
             exit()
         except Exception as e:
-            logger.error(f'{type(e)} {str(e)}')
+            logger.error(f'{type(e).__name__} {str(e)}')
         # Make the request to Pikud-Ha'Oref's link every 1 second
         try:
             time.sleep(REFRESH_TIME)
