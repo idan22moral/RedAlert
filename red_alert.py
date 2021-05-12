@@ -14,6 +14,9 @@ USER_REGIONS = set()
 CURRENT_ALERTS = set()
 ALERT_TIME = 30
 REFRESH_TIME = 0.5
+IS_WINDOWS = 0
+IS_LINUX = 1
+OS = 0
 
 # Set a logger & log formatter
 logger = logging.getLogger(__name__)
@@ -30,29 +33,34 @@ print_handler.setFormatter(log_formatter)
 logger.addHandler(log_handler)
 logger.addHandler(print_handler)
 
-try:
-    from win10toast import ToastNotifier
-except:
-    logger.debug("Could not import win10toast (no toasts available)")
-    from unittest.mock import Mock as ToastNotifier
-try:
-    import notify2
-except:
-    logger.debug("Could not import notify2")
-
+#set OS var
 if sys.platform.startswith('win'):
-    NOTIFIER = ToastNotifier()
+    OS =  IS_WINDOWS
 else:
-    # initialise the d-bus connection
+    OS = IS_LINUX  # todo: batter check for linux and not just not windows
+
+if os == IS_WINDOWS:
+    try:
+        from win10toast import ToastNotifier
+    except:
+        logger.debug("Could not import win10toast (no toasts available)")
+        from unittest.mock import Mock as ToastNotifier
+    NOTIFIER = ToastNotifier()
+
+elif OS == IS_LINUX:        
+    try:
+        import notify2
+    except :
+        logger.debug("Could not import notify2")
+
+    # set NOTIFIER
     notify2.init("red alerts")
- 
-    # create Notification object
     NOTIFIER = notify2.Notification("red alert testrrr", icon = "<insert path to pic here>")
-        
-    # Set the urgency level
     NOTIFIER.set_urgency(notify2.URGENCY_CRITICAL)
-    # Set the timeout
     NOTIFIER.set_timeout(2000)
+
+else:
+    exit() # todo: agree on batter behavior
 
 
 def load_regions() -> set:
@@ -100,19 +108,28 @@ def get_current_alerts() -> str:
     json_data = json.loads(decoded_content)
     return json_data
 
+def notify_linux(msg):
+    NOTIFIER.update("Red Alert!", message=regions)
+    NOTIFIER.show()
+
+def notify_windows(msg):
+    NOTIFIER.show_toast(title="Red Alert!", msg=msg, threaded=True)
+
 def notify_user(regions: str) -> None:
-    if sys.platform.startswith('win'):
-        NOTIFIER.show_toast(title="Red Alert!", msg=regions, threaded=True)
-    else:
-        NOTIFIER.update("Red Alert!", message=regions)
-        NOTIFIER.show()
-        print("test workedddd")
+    global OS
+    global IS_WINDOWS
+    global IS_LINUX
+    if OS == IS_WINDOWS:
+        notify_windows(regions)
+    elif OS == IS_LINUX:
+        notify_linux(regions)
 
 def end_alert(region: str) -> None:
     try:
         CURRENT_ALERTS.remove(region)
     except KeyError as e:
         pass
+
 
 def filter_new_regions(regions: list) -> list:
     """
