@@ -5,6 +5,7 @@ import json
 import threading
 import os
 import logging
+import sys
 
 REGIONS_FILE_PATH = "regions.cfg"
 PIKUD_URL = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
@@ -13,6 +14,9 @@ USER_REGIONS = set()
 CURRENT_ALERTS = set()
 ALERT_TIME = 30
 REFRESH_TIME = 0.5
+IS_WINDOWS = 0
+IS_LINUX = 1
+OS = 0
 
 # Set a logger & log formatter
 logger = logging.getLogger(__name__)
@@ -29,14 +33,33 @@ print_handler.setFormatter(log_formatter)
 logger.addHandler(log_handler)
 logger.addHandler(print_handler)
 
-try:
-    from win10toast import ToastNotifier
-except:
-    logger.debug("Could not import win10toast (no toasts available)")
-    from unittest.mock import Mock as ToastNotifier
+#set OS var
+if sys.platform.startswith('win'):
+    OS =  IS_WINDOWS
+elif sys.platform.startswith('linux'):
+    OS = IS_LINUX
+else:
+    logger.error('Only Linux/Windows machines are supported')
+    exit()
 
-NOTIFIER = ToastNotifier()
-
+try:  #set NOTIFIER
+    if os == IS_WINDOWS:
+        from win10toast import ToastNotifier
+        NOTIFIER = ToastNotifier()
+    elif OS == IS_LINUX:
+        import notify2
+        notify2.init("red alerts")
+        NOTIFIER = notify2.Notification("", icon = "<insert path to pic here>")
+        NOTIFIER.set_urgency(notify2.URGENCY_CRITICAL)
+        NOTIFIER.set_timeout(2000)
+    else:
+        logger.error('Only Linux/Windows machines are supported')
+        exit()
+except Exception as e:
+    logger.error(str(e))
+    logger.warning("notifications are not available")
+    from unittest.mock import Mock
+    NOTIFIER = Mock()
 
 def load_regions() -> set:
     """ 
@@ -79,11 +102,25 @@ def get_current_alerts() -> str:
         'X-Requested-With': 'XMLHttpRequest'
     }
     response = requests.get(PIKUD_URL, headers=headers)
-    json_data = response.json()
+    decoded_content = response.content.decode()
+    json_data = {}
+    if(len(decoded_content) > 0):
+        json_data = json.loads(decoded_content)
     return json_data
 
+def notify_linux(msg: str) -> None:
+    NOTIFIER.update("Red Alert!", message=msg)
+    NOTIFIER.show()
+
+def notify_windows(msg: str) -> None:
+    NOTIFIER.show_toast(title="Red Alert!", msg=msg, threaded=True)
+
 def notify_user(regions: str) -> None:
-    NOTIFIER.show_toast(title="Red Alert!", msg=regions, threaded=True)
+    global OS, IS_WINDOWS, IS_LINUX
+    if OS == IS_WINDOWS:
+        notify_windows(regions)
+    elif OS == IS_LINUX:
+        notify_linux(regions)
 
 def end_alert(region: str) -> None:
     try:
@@ -134,6 +171,12 @@ def log_silent_alerts(regions: list) -> None:
     for region in regions:
         logger.info(f"SILENT ALERT: {region}")
 
+def wait(seconds: float) -> None:
+    try:
+        time.sleep(seconds)
+    except KeyboardInterrupt:
+        exit()
+
 def main():
     # Load the regions from the config file
     global USER_REGIONS, REFRESH_TIME
@@ -141,10 +184,11 @@ def main():
     while True:
         try:
             current_alerts = get_current_alerts()
-            
+            if len(current_alerts) <= 0:
+                wait(REFRESH_TIME)
+                continue
             new_regions = filter_new_regions(current_alerts["data"])
             log_silent_alerts(new_regions)
-
             user_regions = filter_user_regions(new_regions)
             alert_regions(user_regions)
         except json.JSONDecodeError:
@@ -152,13 +196,8 @@ def main():
         except KeyboardInterrupt:
             exit()
         except Exception as e:
-            logger.error(str(e))
-            
-        # Make the request to Pikud-Ha'Oref's link every 1 second
-        try:
-            time.sleep(REFRESH_TIME)
-        except KeyboardInterrupt:
-            exit()
+            logger.error(f'{type(e).__name__} {str(e)}')
+        wait(REFRESH_TIME)
 
 
 if __name__ == "__main__":
