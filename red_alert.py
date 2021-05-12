@@ -61,7 +61,8 @@ try:  #set NOTIFIER
         exit()
 
 except Exception as e:
-    logger.debug("notifications are not available")
+    logger.error(str(e))
+    logger.warning("notifications are not available")
     from unittest.mock import Mock
     NOTIFIER = Mock()
 
