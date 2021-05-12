@@ -110,7 +110,9 @@ def get_current_alerts() -> str:
     }
     response = requests.get(PIKUD_URL, headers=headers)
     decoded_content = response.content.decode()
-    json_data = json.loads(decoded_content)
+    json_data = {}
+    if(len(decoded_content) > 0):
+        json_data = json.loads(decoded_content)
     return json_data
 
 def notify_linux(msg: str) -> None:
@@ -125,6 +127,7 @@ def notify_user(regions: str) -> None:
     if OS == IS_WINDOWS:
         notify_windows(regions)
     elif OS == IS_LINUX:
+        print("hi")
         notify_linux(regions)
 
 def end_alert(region: str) -> None:
@@ -177,6 +180,13 @@ def log_silent_alerts(regions: list) -> None:
     for region in regions:
         logger.info(f"SILENT ALERT: {region}")
 
+
+def wait() -> None:
+    try:
+        time.sleep(REFRESH_TIME)
+    except KeyboardInterrupt:
+        exit()
+
 def main():
     # Load the regions from the config file
     global USER_REGIONS, REFRESH_TIME
@@ -184,9 +194,11 @@ def main():
     while True:
         try:
             current_alerts = get_current_alerts()
+            if len(current_alerts) <= 0:
+                wait() # Make the request to Pikud-Ha'Oref's link every 1 second
+                continue
             new_regions = filter_new_regions(current_alerts["data"])
             log_silent_alerts(new_regions)
-
             user_regions = filter_user_regions(new_regions)
             alert_regions(user_regions)
         except json.JSONDecodeError:
@@ -195,11 +207,8 @@ def main():
             exit()
         except Exception as e:
             logger.error(f'{type(e).__name__} {str(e)}')
-        # Make the request to Pikud-Ha'Oref's link every 1 second
-        try:
-            time.sleep(REFRESH_TIME)
-        except KeyboardInterrupt:
-            exit()
+        
+        wait() # Make the request to Pikud-Ha'Oref's link every 1 second
 
 
 if __name__ == "__main__":
