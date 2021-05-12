@@ -42,30 +42,24 @@ else:
     logger.error('Only Linux/Windows machines are supported')
     exit()
 
-
 try:  #set NOTIFIER
     if os == IS_WINDOWS:
         from win10toast import ToastNotifier
         NOTIFIER = ToastNotifier()
-
     elif OS == IS_LINUX:
         import notify2
-
         notify2.init("red alerts")
         NOTIFIER = notify2.Notification("", icon = "<insert path to pic here>")
         NOTIFIER.set_urgency(notify2.URGENCY_CRITICAL)
         NOTIFIER.set_timeout(2000)
-
     else:
         logger.error('Only Linux/Windows machines are supported')
         exit()
-
 except Exception as e:
     logger.error(str(e))
     logger.warning("notifications are not available")
     from unittest.mock import Mock
     NOTIFIER = Mock()
-
 
 def load_regions() -> set:
     """ 
@@ -134,7 +128,6 @@ def end_alert(region: str) -> None:
     except KeyError as e:
         pass
 
-
 def filter_new_regions(regions: list) -> list:
     """
     Returns only the new regions from the given regions list.
@@ -177,7 +170,6 @@ def alert_regions(regions: list) -> list:
 def log_silent_alerts(regions: list) -> None:
     for region in regions:
         logger.info(f"SILENT ALERT: {region}")
-
 
 def wait() -> None:
     try:
