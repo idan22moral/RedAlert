@@ -5,6 +5,7 @@ import json
 import threading
 import os
 import logging
+import sys
 
 REGIONS_FILE_PATH = "regions.cfg"
 PIKUD_URL = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
@@ -34,8 +35,24 @@ try:
 except:
     logger.debug("Could not import win10toast (no toasts available)")
     from unittest.mock import Mock as ToastNotifier
+try:
+    import notify2
+except:
+    logger.debug("Could not import notify2")
 
-NOTIFIER = ToastNotifier()
+if sys.platform.startswith('win'):
+    NOTIFIER = ToastNotifier()
+else:
+    # initialise the d-bus connection
+    notify2.init("red alerts")
+ 
+    # create Notification object
+    NOTIFIER = notify2.Notification("red alert testrrr", icon = "<insert path to pic here>")
+        
+    # Set the urgency level
+    NOTIFIER.set_urgency(notify2.URGENCY_CRITICAL)
+    # Set the timeout
+    NOTIFIER.set_timeout(2000)
 
 
 def load_regions() -> set:
@@ -79,11 +96,17 @@ def get_current_alerts() -> str:
         'X-Requested-With': 'XMLHttpRequest'
     }
     response = requests.get(PIKUD_URL, headers=headers)
-    json_data = response.json()
+    decoded_content = response.content.decode()
+    json_data = json.loads(decoded_content)
     return json_data
 
 def notify_user(regions: str) -> None:
-    NOTIFIER.show_toast(title="Red Alert!", msg=regions, threaded=True)
+    if sys.platform.startswith('win'):
+        NOTIFIER.show_toast(title="Red Alert!", msg=regions, threaded=True)
+    else:
+        NOTIFIER.update("Red Alert!", message=regions)
+        NOTIFIER.show()
+        print("test workedddd")
 
 def end_alert(region: str) -> None:
     try:
@@ -141,7 +164,7 @@ def main():
     while True:
         try:
             current_alerts = get_current_alerts()
-            
+            print(current_alerts)
             new_regions = filter_new_regions(current_alerts["data"])
             log_silent_alerts(new_regions)
 
@@ -152,8 +175,7 @@ def main():
         except KeyboardInterrupt:
             exit()
         except Exception as e:
-            logger.error(str(e))
-            
+            logger.error(f'{type(e)} {str(e)}')
         # Make the request to Pikud-Ha'Oref's link every 1 second
         try:
             time.sleep(REFRESH_TIME)
