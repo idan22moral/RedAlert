@@ -109,7 +109,7 @@ def get_current_alerts() -> str:
     return json_data
 
 def notify_linux(msg: str) -> None:
-    NOTIFIER.update("Red Alert!", message=regions)
+    NOTIFIER.update("Red Alert!", message=msg)
     NOTIFIER.show()
 
 def notify_windows(msg: str) -> None:
