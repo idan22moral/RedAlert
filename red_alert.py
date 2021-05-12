@@ -171,9 +171,9 @@ def log_silent_alerts(regions: list) -> None:
     for region in regions:
         logger.info(f"SILENT ALERT: {region}")
 
-def wait() -> None:
+def wait(seconds: float) -> None:
     try:
-        time.sleep(REFRESH_TIME)
+        time.sleep(seconds)
     except KeyboardInterrupt:
         exit()
 
@@ -185,7 +185,7 @@ def main():
         try:
             current_alerts = get_current_alerts()
             if len(current_alerts) <= 0:
-                wait() # Make the request to Pikud-Ha'Oref's link every 1 second
+                wait(REFRESH_TIME)
                 continue
             new_regions = filter_new_regions(current_alerts["data"])
             log_silent_alerts(new_regions)
@@ -197,8 +197,7 @@ def main():
             exit()
         except Exception as e:
             logger.error(f'{type(e).__name__} {str(e)}')
-        
-        wait() # Make the request to Pikud-Ha'Oref's link every 1 second
+        wait(REFRESH_TIME)
 
 
 if __name__ == "__main__":
