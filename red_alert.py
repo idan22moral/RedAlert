@@ -61,11 +61,9 @@ try:  #set NOTIFIER
         exit()
 
 except Exception as e:
-    logger.debug("Toast/notify2 notifications are not available")
+    logger.debug("notifications are not available")
     from unittest.mock import Mock
     NOTIFIER = Mock()
-    logger.error(str(e))
-    logger.warning("Toast/notify2 notifications are not available")
 
 
 def load_regions() -> set:
@@ -127,7 +125,6 @@ def notify_user(regions: str) -> None:
     if OS == IS_WINDOWS:
         notify_windows(regions)
     elif OS == IS_LINUX:
-        print("hi")
         notify_linux(regions)
 
 def end_alert(region: str) -> None:
