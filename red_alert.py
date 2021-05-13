@@ -123,6 +123,7 @@ def notify_user(regions: str) -> None:
         notify_linux(regions)
 
 def end_alert(region: str) -> None:
+    global CURRENT_ALERTS
     try:
         CURRENT_ALERTS.remove(region)
     except KeyError as e:
@@ -157,15 +158,18 @@ def alert_regions(regions: list) -> list:
     # Add the regions to the list of already alerted regions
     # and set a timer for every region
     for region in regions:
-        CURRENT_ALERTS.add(region)
-        timer = threading.Timer(ALERT_TIME, end_alert, args=(region,))
-        timer.daemon = True
-        timer.start()
         logger.info(f"USER ALERTS: {region}")
 
     # Notify the user about all the new regions
     if len(regions) > 0:
         notify_user(', '.join(regions))
+
+def schedule_alerts_timeout(regions: list) -> None:
+    for region in regions:
+        CURRENT_ALERTS.add(region)
+        timer = threading.Timer(ALERT_TIME, end_alert, args=(region,))
+        timer.daemon = True
+        timer.start()
 
 def log_silent_alerts(regions: list) -> None:
     for region in regions:
@@ -187,10 +191,16 @@ def main():
             if len(current_alerts) <= 0:
                 wait(REFRESH_TIME)
                 continue
+
+            # filter regions
             new_regions = filter_new_regions(current_alerts["data"])
-            log_silent_alerts(new_regions)
             user_regions = filter_user_regions(new_regions)
+            # pop notifications to the user
             alert_regions(user_regions)
+            # log silent regions
+            log_silent_alerts(new_regions)
+            # schedule the EOL for the region alert, after which end_alert() is called
+            schedule_alerts_timeout(new_regions)
         except json.JSONDecodeError:
             pass
         except KeyboardInterrupt:
