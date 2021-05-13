@@ -16,7 +16,7 @@ ALERT_TIME = 30
 REFRESH_TIME = 0.5
 IS_WINDOWS = 0
 IS_LINUX = 1
-OS = 0
+PLATFORM = 0
 
 # Set a logger & log formatter
 logger = logging.getLogger(__name__)
@@ -33,20 +33,20 @@ print_handler.setFormatter(log_formatter)
 logger.addHandler(log_handler)
 logger.addHandler(print_handler)
 
-#set OS var
+#set PLATFORM var
 if sys.platform.startswith('win'):
-    OS =  IS_WINDOWS
+    PLATFORM = IS_WINDOWS
 elif sys.platform.startswith('linux'):
-    OS = IS_LINUX
+    PLATFORM = IS_LINUX
 else:
     logger.error('Only Linux/Windows machines are supported')
     exit()
 
 try:  #set NOTIFIER
-    if os == IS_WINDOWS:
+    if PLATFORM == IS_WINDOWS:
         from win10toast import ToastNotifier
         NOTIFIER = ToastNotifier()
-    elif OS == IS_LINUX:
+    elif PLATFORM == IS_LINUX:
         import notify2
         notify2.init("red alerts")
         NOTIFIER = notify2.Notification("", icon = "<insert path to pic here>")
@@ -116,10 +116,10 @@ def notify_windows(msg: str) -> None:
     NOTIFIER.show_toast(title="Red Alert!", msg=msg, threaded=True)
 
 def notify_user(regions: str) -> None:
-    global OS, IS_WINDOWS, IS_LINUX
-    if OS == IS_WINDOWS:
+    global PLATFORM, IS_WINDOWS, IS_LINUX
+    if PLATFORM == IS_WINDOWS:
         notify_windows(regions)
-    elif OS == IS_LINUX:
+    elif PLATFORM == IS_LINUX:
         notify_linux(regions)
 
 def end_alert(region: str) -> None:
