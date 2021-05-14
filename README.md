@@ -1,8 +1,8 @@
 # RedAlert
-Get toast notification for Red Alerts (Windows only ATM).
+Get toast notification for Red Alerts.
 
 ## Simple Explanation
-This tool pops a Windows toast notification for every Red Alert.  
+This tool pops a toast notification for every Red Alert.  
 You can filter the regions for you notification in the `regions.cfg` file.  
 All Red Alert notifications (even filtered ones) are logged to the console and log file.  
 
