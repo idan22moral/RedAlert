@@ -19,19 +19,9 @@ For example:
 This way you'll receive toast notifications for those regions only.  
 To find your region, refer to [Pikud-Ha'Oref](https://www.oref.org.il/).
 
-## Installation
-Simply clone, then:
-#### Windows
-```
-pip install -r win_requirements.txt
-```
-#### Linux
-```
-pip install -r linux_requirements.txt
-```
-
-## Usage
+## Installation & Usage
 ```sh
+pip install -r requirements.txt
 python red_alert.py
 ```
 
