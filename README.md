@@ -1,8 +1,8 @@
 # RedAlert
-Get toast notification for Red Alerts (Windows only ATM).
+Get toast notification for Red Alerts.
 
 ## Simple Explanation
-This tool pops a Windows toast notification for every Red Alert.  
+This tool pops a toast notification for every Red Alert.  
 You can filter the regions for you notification in the `regions.cfg` file.  
 All Red Alert notifications (even filtered ones) are logged to the console and log file.  
 
@@ -19,9 +19,19 @@ For example:
 This way you'll receive toast notifications for those regions only.  
 To find your region, refer to [Pikud-Ha'Oref](https://www.oref.org.il/).
 
-## Installation & Usage
+## Installation
+Simply clone, then:
+#### Windows
+```
+pip install -r win_requirements.txt
+```
+#### Linux
+```
+pip install -r linux_requirements.txt
+```
+
+## Usage
 ```sh
-pip install -r requirements.txt
 python red_alert.py
 ```
 
