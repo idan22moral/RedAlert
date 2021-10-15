@@ -1,22 +1,10 @@
 import requests
 import time
-import datetime
 import json
 import threading
-import os
 import logging
 import sys
-
-REGIONS_FILE_PATH = "regions.cfg"
-PIKUD_URL = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
-PIKUD_REFERER = "https://www.oref.org.il/"
-USER_REGIONS = set()
-CURRENT_ALERTS = set()
-ALERT_TIME = 30
-REFRESH_TIME = 0.5
-IS_WINDOWS = 0
-IS_LINUX = 1
-PLATFORM = 0
+import consts
 
 # Set a logger & log formatter
 logger = logging.getLogger(__name__)
@@ -35,18 +23,18 @@ logger.addHandler(print_handler)
 
 #set PLATFORM var
 if sys.platform.startswith('win'):
-    PLATFORM = IS_WINDOWS
+    PLATFORM = consts.IS_WINDOWS
 elif sys.platform.startswith('linux'):
-    PLATFORM = IS_LINUX
+    PLATFORM = consts.IS_LINUX
 else:
     logger.error('Only Linux/Windows machines are supported')
     exit()
 
 try:  #set NOTIFIER
-    if PLATFORM == IS_WINDOWS:
+    if PLATFORM == consts.IS_WINDOWS:
         from win10toast import ToastNotifier
         NOTIFIER = ToastNotifier()
-    elif PLATFORM == IS_LINUX:
+    elif PLATFORM == consts.IS_LINUX:
         import notify2
         notify2.init("red alerts")
         NOTIFIER = notify2.Notification("", icon = "<insert path to pic here>")
@@ -69,7 +57,7 @@ def load_regions() -> set:
 
     try:
         # Load the regions from the config file
-        with open(REGIONS_FILE_PATH, "r", encoding='utf-8') as f:
+        with open(consts.REGIONS_FILE_PATH, "r", encoding='utf-8') as f:
             USER_REGIONS = f.readlines()
 
         # Remove '\n' from the end of every line, and remove empty lines
@@ -89,7 +77,7 @@ def load_regions() -> set:
         # Set USER_REGIONS = None to indicate that the user has no preferences
         # In this case the user will a toast notification for any region
         USER_REGIONS = None
-        logger.warning(f'No ./{REGIONS_FILE_PATH} file found.')
+        logger.warning(f'No ./{consts.REGIONS_FILE_PATH} file found.')
 
     return USER_REGIONS
 
@@ -98,10 +86,10 @@ def get_current_alerts() -> str:
     Returns a json (dict) that contains the data from the alert source.
     """
     headers = {
-        'Referer':          PIKUD_REFERER,
+        'Referer':          consts.PIKUD_REFERER,
         'X-Requested-With': 'XMLHttpRequest'
     }
-    response = requests.get(PIKUD_URL, headers=headers)
+    response = requests.get(consts.PIKUD_URL, headers=headers)
     decoded_content = response.content.decode()
     json_data = {}
     if(len(decoded_content) > 0):
@@ -116,16 +104,16 @@ def notify_windows(msg: str) -> None:
     NOTIFIER.show_toast(title="Red Alert!", msg=msg, threaded=True)
 
 def notify_user(regions: str) -> None:
-    global PLATFORM, IS_WINDOWS, IS_LINUX
-    if PLATFORM == IS_WINDOWS:
+    global PLATFORM
+    if PLATFORM == consts.IS_WINDOWS:
         notify_windows(regions)
-    elif PLATFORM == IS_LINUX:
+    elif PLATFORM == consts.IS_LINUX:
         notify_linux(regions)
 
 def end_alert(region: str) -> None:
     global CURRENT_ALERTS
     try:
-        CURRENT_ALERTS.remove(region)
+        consts.CURRENT_ALERTS.remove(region)
     except KeyError as e:
         pass
 
@@ -135,7 +123,7 @@ def filter_new_regions(regions: list) -> list:
     """
     global CURRENT_ALERTS
     # Remove already alerted regions from the list
-    new_regions = [region for region in regions if region not in CURRENT_ALERTS]
+    new_regions = [region for region in regions if region not in consts.CURRENT_ALERTS]
     return new_regions
 
 def filter_user_regions(regions: list):
@@ -166,8 +154,8 @@ def alert_regions(regions: list) -> list:
 
 def schedule_alerts_timeout(regions: list) -> None:
     for region in regions:
-        CURRENT_ALERTS.add(region)
-        timer = threading.Timer(ALERT_TIME, end_alert, args=(region,))
+        consts.CURRENT_ALERTS.add(region)
+        timer = threading.Timer(consts.ALERT_TIME, end_alert, args=(region,))
         timer.daemon = True
         timer.start()
 
@@ -189,7 +177,7 @@ def main():
         try:
             current_alerts = get_current_alerts()
             if len(current_alerts) <= 0:
-                wait(REFRESH_TIME)
+                wait(consts.REFRESH_TIME)
                 continue
 
             # filter regions
@@ -207,7 +195,7 @@ def main():
             exit()
         except Exception as e:
             logger.error(f'{type(e).__name__} {str(e)}')
-        wait(REFRESH_TIME)
+        wait(consts.REFRESH_TIME)
 
 
 if __name__ == "__main__":
