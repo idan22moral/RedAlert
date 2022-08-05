@@ -1,6 +1,7 @@
 REGIONS_FILE_PATH = "regions.cfg"
-PIKUD_URL = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
-PIKUD_REFERER = "https://www.oref.org.il/"
+OREF_BASE_URL = "https://www.oref.org.il/"
+OREF_REFERER = OREF_BASE_URL
+OREF_ALERTS_URL = OREF_BASE_URL + "WarningMessages/alert/alerts.json"
 USER_REGIONS = set()
 CURRENT_ALERTS = set()
 ALERT_TIME = 30

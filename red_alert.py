@@ -86,10 +86,10 @@ def get_current_alerts() -> str:
     Returns a json (dict) that contains the data from the alert source.
     """
     headers = {
-        'Referer':          consts.PIKUD_REFERER,
+        'Referer':          consts.OREF_REFERER,
         'X-Requested-With': 'XMLHttpRequest'
     }
-    response = requests.get(consts.PIKUD_URL, headers=headers)
+    response = requests.get(consts.OREF_ALERTS_URL, headers=headers)
     decoded_content = response.content.decode()
     json_data = {}
     if(len(decoded_content) > 0):
