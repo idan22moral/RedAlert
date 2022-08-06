@@ -96,7 +96,7 @@ def get_current_alerts() -> list[str]:
     if not response.ok:
         return alerts
 
-    respose_content = response.content.decode()
+    respose_content = response.content.decode(encoding='utf-8-sig')
     try:
         content_json = json.loads(respose_content)
         if type(content_json) is not dict or 'data' not in content_json or type(content_json['data']) is not list:
