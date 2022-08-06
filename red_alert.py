@@ -81,20 +81,26 @@ def load_regions() -> set:
 
     return USER_REGIONS
 
-def get_current_alerts() -> str:
+def get_current_alerts() -> list[str]:
     """
-    Returns a json (dict) that contains the data from the alert source.
+    Returns a list of the current alerted regions.
     """
     headers = {
         'Referer':          consts.OREF_REFERER,
         'X-Requested-With': 'XMLHttpRequest'
     }
     response = requests.get(consts.OREF_ALERTS_URL, headers=headers)
-    decoded_content = response.content.decode()
-    json_data = {}
-    if(len(decoded_content) > 0):
-        json_data = json.loads(decoded_content)
-    return json_data
+    respose_content = response.content.decode()
+    alerts = []
+    try:
+        content_json = json.loads(respose_content)
+        if type(content_json) is not dict or 'data' not in content_json or type(content_json['data']) is not list:
+            raise TypeError('Invalid alert format:', content_json)
+        alerts = content_json['data']
+    except json.JSONDecodeError:
+        pass
+    finally:
+        return alerts
 
 def notify_linux(msg: str) -> None:
     NOTIFIER.update("Red Alert!", message=msg)
@@ -180,7 +186,7 @@ def main():
                 continue
 
             # filter regions
-            new_regions = filter_new_regions(current_alerts["data"])
+            new_regions = filter_new_regions(current_alerts)
             user_regions = filter_user_regions(new_regions)
             # pop notifications to the user
             alert_regions(user_regions)
