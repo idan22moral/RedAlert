@@ -201,7 +201,7 @@ def main():
         except Exception as e:
             logger.error(f'{type(e).__name__} {str(e)}')
         finally:
-            wait(consts.REFRESH_TIME)
+            wait(consts.REFRESH_INTERVAL)
 
 
 if __name__ == "__main__":
