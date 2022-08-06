@@ -85,13 +85,18 @@ def get_current_alerts() -> list[str]:
     """
     Returns a list of the current alerted regions.
     """
+    alerts = []
+
     headers = {
         'Referer':          consts.OREF_REFERER,
         'X-Requested-With': 'XMLHttpRequest'
     }
     response = requests.get(consts.OREF_ALERTS_URL, headers=headers)
+
+    if not response.ok:
+        return alerts
+
     respose_content = response.content.decode()
-    alerts = []
     try:
         content_json = json.loads(respose_content)
         if type(content_json) is not dict or 'data' not in content_json or type(content_json['data']) is not list:
