@@ -176,8 +176,7 @@ def main():
     while True:
         try:
             current_alerts = get_current_alerts()
-            if len(current_alerts) <= 0:
-                wait(consts.REFRESH_TIME)
+            if len(current_alerts) == 0:
                 continue
 
             # filter regions
@@ -195,7 +194,8 @@ def main():
             exit()
         except Exception as e:
             logger.error(f'{type(e).__name__} {str(e)}')
-        wait(consts.REFRESH_TIME)
+        finally:
+            wait(consts.REFRESH_TIME)
 
 
 if __name__ == "__main__":
